@@ -1,0 +1,229 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #8b7355 0%, #a0826d 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Decorative Plants */
+.plant {
+    position: absolute;
+    opacity: 0.3;
+}
+
+.plant-1 {
+    bottom: 20px;
+    left: 30px;
+    width: 80px;
+    height: 120px;
+}
+
+.plant-2 {
+    top: 50px;
+    right: 40px;
+    width: 100px;
+    height: 150px;
+    transform: scaleX(-1);
+}
+
+.leaf {
+    position: absolute;
+    background-color: #5a9e3f;
+    border-radius: 50% 0;
+    opacity: 0.8;
+}
+
+.plant .leaf:nth-child(1) {
+    width: 25px;
+    height: 60px;
+    left: 0;
+    bottom: 40px;
+    transform: rotate(-25deg);
+}
+
+.plant .leaf:nth-child(2) {
+    width: 30px;
+    height: 80px;
+    left: 15px;
+    bottom: 0;
+    transform: rotate(0deg);
+}
+
+.plant .leaf:nth-child(3) {
+    width: 25px;
+    height: 60px;
+    left: 35px;
+    bottom: 30px;
+    transform: rotate(25deg);
+}
+
+/* Login Container */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.login-box {
+    background: linear-gradient(135deg, #ff9933 0%, #ff8811 100%);
+    width: 100%;
+    max-width: 380px;
+    border-radius: 20px;
+    padding: 50px 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Header Tabs */
+.header {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.tab {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.tab:hover {
+    color: white;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: white;
+    border-radius: 1px;
+}
+
+/* Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.form-group input {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 25px;
+    padding: 15px 20px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-group input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-group input:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Sign In Button */
+.sign-in-btn {
+    background: white;
+    color: #ff9933;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 40px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.sign-in-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.sign-in-btn:active {
+    transform: translateY(0);
+}
+
+/* Forgot Password Link */
+.forgot-password {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .login-box {
+        margin: 20px;
+        padding: 40px 30px;
+    }
+
+    .form-group input {
+        padding: 12px 18px;
+        font-size: 13px;
+    }
+
+    .sign-in-btn {
+        padding: 12px 30px;
+        font-size: 13px;
+    }
+}
