@@ -54,40 +54,11 @@
             <div class="dashboard-container">
                 <div id="loading" class="loading-state">
                     <i class="fas fa-spinner fa-spin"></i>
-                    <p>جاري تحميل البيانات...</p>
+                    <p>جاري تحميل التقارير...</p>
                 </div>
 
                 <div id="dashboard-content" class="dashboard-content" style="display: none;">
-                    <div class="info-card">
-                        <i class="fas fa-info-circle"></i>
-                        <div class="info-text">
-                            <h3>كيفية الاستخدام</h3>
-                            <p>لعرض التقارير، يجب تشغيل السكريبت في Google Colab أولاً</p>
-                            <ol>
-                                <li>افتح <a href="YOUR_COLAB_LINK" target="_blank">Google Colab Notebook</a></li>
-                                <li>شغل جميع الخلايا (Run All)</li>
-                                <li>بعد اكتمال التشغيل، ارفع ملفات HTML هنا</li>
-                            </ol>
-                        </div>
-                    </div>
-
-                    <div class="upload-section">
-                        <div class="upload-box">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <h3>رفع تقرير الموارد البشرية</h3>
-                            <input type="file" id="hr-upload" accept=".html" onchange="loadDashboard('hr', this)">
-                            <label for="hr-upload" class="upload-label">اختر ملف HTML</label>
-                        </div>
-
-                        <div class="upload-box">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <h3>رفع تقرير المرافق</h3>
-                            <input type="file" id="facilities-upload" accept=".html" onchange="loadDashboard('facilities', this)">
-                            <label for="facilities-upload" class="upload-label">اختر ملف HTML</label>
-                        </div>
-                    </div>
-
-                    <div id="iframe-container" class="iframe-container" style="display: none;">
+                    <div id="iframe-container" class="iframe-container">
                         <iframe id="dashboard-iframe" frameborder="0"></iframe>
                     </div>
                 </div>
