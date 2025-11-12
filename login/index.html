@@ -1,29 +1,48 @@
-// Password toggle functionality
-const toggleBtn = document.getElementById('toggleBtn');
-const passwordInput = document.getElementById('password');
-const toggleText = document.getElementById('toggle-text');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orange Login</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="roots-background">
+    <div class="root root1"></div>
+    <div class="root root2"></div>
+    <div class="root root3"></div>
+</div>
 
-toggleBtn.addEventListener('click', function() {
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleText.textContent = 'HIDE';
-    } else {
-        passwordInput.type = 'password';
-        toggleText.textContent = 'SHOW';
-    }
-});
-
-// Form submission
-const loginForm = document.getElementById('loginForm');
-
-loginForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+<div class="login-container">
+    <div class="tab-container">
+        <div class="tab active">Sign In</div>
+        <div class="tab">Sign Up</div>
+    </div>
     
-    // Add your login logic here
-    console.log('Username:', username);
-    console.log('Password:', password);
-    
-    alert('Login submitted for user: ' + username);
-});
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Blake Mattos" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" placeholder="••••••••••" required>
+                <button type="button" class="password-toggle" id="toggleBtn">
+                    <span id="toggle-text">SHOW</span>
+                </button>
+            </div>
+        </div>
+        
+        <button type="submit" class="submit-btn">Sign In</button>
+        
+        <div class="forgot-password">
+            <a href="#">Forgot Password?</a>
+        </div>
+    </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
