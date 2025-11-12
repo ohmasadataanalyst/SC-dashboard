@@ -1,0 +1,71 @@
+name: Generate Dashboards
+
+on:
+  schedule:
+    # Run every day at 6 AM UTC (adjust as needed)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allows manual triggering from GitHub Actions tab
+  push:
+    branches:
+      - main # Run when pushing to main branch
+
+permissions:
+  contents: write  # Allows the workflow to commit files
+
+jobs:
+  generate-reports:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y fonts-liberation fonts-noto \
+          libasound2t64 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
+          libcairo2 libcups2 libdbus-1-3 libdrm2 libgbm1 libgtk-3-0 \
+          libnspr4 libnss3 libpango-1.0-0 libx11-6 libx11-xcb1 libxcb1 \
+          libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 \
+          libxi6 libxrandr2 libxrender1 libxss1 libxtst6 \
+          chromium-browser
+        
+    - name: Install Python dependencies
+      run: |
+        pip install pandas gspread pyppeteer nest_asyncio google-auth
+        
+    - name: Set up Google credentials
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      run: |
+        echo "$GOOGLE_CREDENTIALS" > credentials.json
+        
+    - name: Run dashboard generation script
+      env:
+        PYTHONUNBUFFERED: 1
+      run: |
+        cd login
+        python generate_dashboards.py
+        echo "✅ Script completed"
+        ls -la *.html || echo "⚠️ No HTML files generated"
+        
+    - name: Copy dashboards to login folder
+      run: |
+        cd login
+        ls -la *.html || echo "No HTML files found"
+        cp HR_Report_*.html hr_dashboard.html 2>/dev/null || echo "⚠️ HR report not found"
+        cp Facilities_Report_*.html facilities_dashboard.html 2>/dev/null || echo "⚠️ Facilities report not found"
+        ls -la *dashboard.html || echo "No dashboards copied"
+        
+    - name: Commit and push if changed
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        git add login/hr_dashboard.html login/facilities_dashboard.html
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update dashboards [skip ci]" && git push)
