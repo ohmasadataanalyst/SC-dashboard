@@ -1,86 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Premium Login Page</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            background-color: #fff5e0;
-            color: #444;
+            background-color: #FFBF00;
             font-family: Arial, sans-serif;
         }
-
         .login-container {
-            width: 300px;
-            margin: auto;
+            max-width: 400px;
+            margin: 100px auto;
             padding: 20px;
-            border: 2px solid #f76b30;
+            background: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background: #ffebc0;
-            position: relative;
         }
-
-        .plant-decor {
-            position: absolute;
-            top: -30px;
-            right: -30px;
-            width: 100px;
-            height: 100px;
-            background: url('plant.svg') no-repeat center;
-            background-size: cover;
-        }
-
-        h2 {
-            text-align: center;
-            color: #f76b30;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
+        h2 { text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; }
+        .form-group input {
             width: 100%;
-            padding: 8px;
-            margin: 8px 0;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #f76b30;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        .show-hide {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        button:hover {
-            background-color: #c85920;
+        .animated-roots {
+            animation: growRoots 3s infinite;
+        }
+        @keyframes growRoots {
+            0% { transform: scaleY(1); }
+            50% { transform: scaleY(1.2); }
+            100% { transform: scaleY(1); }
         }
     </style>
 </head>
-
 <body>
     <div class="login-container">
-        <div class="plant-decor"></div>
-        <h2>Login</h2>
+        <h2>Premium Login</h2>
         <form>
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="show-hide">
+                    <input type="password" id="password" required>
+                    <button type="button" onclick="togglePasswordVisibility()">Show</button>
+                </div>
+            </div>
             <button type="submit">Login</button>
         </form>
     </div>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = event.currentTarget;
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleButton.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                toggleButton.textContent = "Show";
+            }
+        }
+    </script>
 </body>
-
 </html>
