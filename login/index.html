@@ -1,77 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Login Page</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background-color: #FFBF00;
-            font-family: Arial, sans-serif;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            border-radius: 8px;
-        }
-        h2 { text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .show-hide {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .animated-roots {
-            animation: growRoots 3s infinite;
-        }
-        @keyframes growRoots {
-            0% { transform: scaleY(1); }
-            50% { transform: scaleY(1.2); }
-            100% { transform: scaleY(1); }
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h2>Premium Login</h2>
-        <form>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="show-hide">
-                    <input type="password" id="password" required>
-                    <button type="button" onclick="togglePasswordVisibility()">Show</button>
-                </div>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-    </div>
-    <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const toggleButton = event.currentTarget;
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-                toggleButton.textContent = "Hide";
-            } else {
-                passwordInput.type = "password";
-                toggleButton.textContent = "Show";
-            }
-        }
-    </script>
-</body>
-</html>
+// Password toggle functionality
+const toggleBtn = document.getElementById('toggleBtn');
+const passwordInput = document.getElementById('password');
+const toggleText = document.getElementById('toggle-text');
+
+toggleBtn.addEventListener('click', function() {
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleText.textContent = 'HIDE';
+    } else {
+        passwordInput.type = 'password';
+        toggleText.textContent = 'SHOW';
+    }
+});
+
+// Form submission
+const loginForm = document.getElementById('loginForm');
+
+loginForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    // Add your login logic here
+    console.log('Username:', username);
+    console.log('Password:', password);
+    
+    alert('Login submitted for user: ' + username);
+});
