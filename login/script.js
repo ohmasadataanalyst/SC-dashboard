@@ -1,37 +1,29 @@
-// Function to toggle password visibility
-function togglePasswordVisibility() {
-    const passwordField = document.getElementById('password');
-    const toggleButton = document.getElementById('toggle-password');
+// Password toggle functionality
+const toggleBtn = document.getElementById('toggleBtn');
+const passwordInput = document.getElementById('password');
+const toggleText = document.getElementById('toggle-text');
 
-    toggleButton.addEventListener('click', function() {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        this.textContent = type === 'password' ? 'Show' : 'Hide';
-    });
-}
+toggleBtn.addEventListener('click', function() {
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleText.textContent = 'HIDE';
+    } else {
+        passwordInput.type = 'password';
+        toggleText.textContent = 'SHOW';
+    }
+});
 
-// Function to handle form submission
-function handleFormSubmission(event) {
-    event.preventDefault(); // Prevent the default form submit
+// Form submission
+const loginForm = document.getElementById('loginForm');
+
+loginForm.addEventListener('submit', function(event) {
+    event.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-
-    // Example of handling form data
+    
+    // Add your login logic here
     console.log('Username:', username);
     console.log('Password:', password);
-    // Add more processing logic as needed...
-}
-
-// Function to enable smooth animations
-function smoothAnimations() {
-    const form = document.getElementById('login-form');
-    form.classList.add('fade-in'); // Add a class for animations
-}
-
-// Initialization
-document.addEventListener('DOMContentLoaded', function() {
-    togglePasswordVisibility();
-    const form = document.getElementById('login-form');
-    form.addEventListener('submit', handleFormSubmission);
-    smoothAnimations();
+    
+    alert('Login submitted for user: ' + username);
 });
