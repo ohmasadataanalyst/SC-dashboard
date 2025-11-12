@@ -289,4 +289,22 @@ if __name__ == "__main__":
     print("="*60)
     print("SC Dashboard Generator - GitHub Actions")
     print("="*60)
-    run_all_reports(SHEET_KEY, MAIN_DATA_GID, ACCOMMODATION_TAB_NAME, start_date_str, end_date_str)
+    
+    # Check if credentials file exists
+    if not os.path.exists('credentials.json'):
+        print("❌ ERROR: credentials.json not found!")
+        print("Make sure GOOGLE_CREDENTIALS secret is set in GitHub.")
+        exit(1)
+    
+    try:
+        run_all_reports(SHEET_KEY, MAIN_DATA_GID, ACCOMMODATION_TAB_NAME, start_date_str, end_date_str)
+        print("\n" + "="*60)
+        print("✅ SUCCESS! All dashboards generated.")
+        print("="*60)
+    except Exception as e:
+        print("\n" + "="*60)
+        print(f"❌ ERROR: {e}")
+        print("="*60)
+        import traceback
+        traceback.print_exc()
+        exit(1)
