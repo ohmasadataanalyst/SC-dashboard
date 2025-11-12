@@ -21,9 +21,11 @@ loginForm.addEventListener('submit', function(event) {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     
-    // Add your login logic here
-    console.log('Username:', username);
-    console.log('Password:', password);
-    
-    alert('Login submitted for user: ' + username);
+    // Add your login validation here
+    if (username && password) {
+        // Redirect to dashboard page
+        window.location.href = 'dashboard.html';
+    } else {
+        alert('Please enter username and password');
+    }
 });
