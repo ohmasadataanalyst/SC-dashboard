@@ -44,7 +44,8 @@ jobs:
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       run: |
-        echo "$GOOGLE_CREDENTIALS" > credentials.json
+        # FIX: Write the file directly into the 'login' directory
+        echo "$GOOGLE_CREDENTIALS" > login/credentials.json
         
     - name: Run dashboard generation script
       env:
