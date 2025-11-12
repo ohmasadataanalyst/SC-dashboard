@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-chart-line"></i>
+                <h2>لوحات المعلومات</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-dashboard="hr">
+                    <i class="fas fa-users"></i>
+                    <span>الموارد البشرية</span>
+                </button>
+                <button class="nav-item" data-dashboard="facilities">
+                    <i class="fa-solid fa-building-user"></i>
+                    <span>إدارة المرافق</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1 id="dashboard-title">لوحة الموارد البشرية</h1>
+                <div class="header-actions">
+                    <button class="btn-download" onclick="downloadDashboard()">
+                        <i class="fas fa-download"></i>
+                        تحميل التقرير
+                    </button>
+                    <button class="btn-refresh" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt"></i>
+                        تحديث
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-container">
+                <div id="loading" class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>جاري تحميل البيانات...</p>
+                </div>
+
+                <div id="dashboard-content" class="dashboard-content" style="display: none;">
+                    <div class="info-card">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="info-text">
+                            <h3>كيفية الاستخدام</h3>
+                            <p>لعرض التقارير، يجب تشغيل السكريبت في Google Colab أولاً</p>
+                            <ol>
+                                <li>افتح <a href="YOUR_COLAB_LINK" target="_blank">Google Colab Notebook</a></li>
+                                <li>شغل جميع الخلايا (Run All)</li>
+                                <li>بعد اكتمال التشغيل، ارفع ملفات HTML هنا</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="upload-section">
+                        <div class="upload-box">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h3>رفع تقرير الموارد البشرية</h3>
+                            <input type="file" id="hr-upload" accept=".html" onchange="loadDashboard('hr', this)">
+                            <label for="hr-upload" class="upload-label">اختر ملف HTML</label>
+                        </div>
+
+                        <div class="upload-box">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h3>رفع تقرير المرافق</h3>
+                            <input type="file" id="facilities-upload" accept=".html" onchange="loadDashboard('facilities', this)">
+                            <label for="facilities-upload" class="upload-label">اختر ملف HTML</label>
+                        </div>
+                    </div>
+
+                    <div id="iframe-container" class="iframe-container" style="display: none;">
+                        <iframe id="dashboard-iframe" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
