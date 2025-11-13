@@ -11,6 +11,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 import asyncio
 import os
+import sys
 from pyppeteer import launch
 import nest_asyncio
 
@@ -22,13 +23,18 @@ MAIN_DATA_GID = 560668325
 ACCOMMODATION_TAB_NAME = 'HR Accommodation Data'
 FACILITIES_TYPES = ['Accommodations - سكن العمال', 'Containers - حاويات']
 
-# Auto-calculate date range (last 7 days)
-end_date = datetime.now()
-start_date = end_date - timedelta(days=7)
-start_date_str = start_date.strftime('%Y-%m-%d')
-end_date_str = end_date.strftime('%Y-%m-%d')
-
-print(f"Generating reports from {start_date_str} to {end_date_str}")
+# Get date range from command line arguments or use defaults
+if len(sys.argv) >= 3:
+    start_date_str = sys.argv[1]
+    end_date_str = sys.argv[2]
+    print(f"📅 Using custom date range: {start_date_str} to {end_date_str}")
+else:
+    # Auto-calculate date range (last 7 days)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=7)
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
+    print(f"📅 Using default date range (last 7 days): {start_date_str} to {end_date_str}")
 
 
 async def create_html_and_pdf(html_content, html_filename, pdf_filename):
