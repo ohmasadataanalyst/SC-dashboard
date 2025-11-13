@@ -1,43 +1,34 @@
-# Install the necessary libraries
-!pip install requests pytz pandas gspread gspread-dataframe google-auth-oauthlib numpy openpyxl
-
-# Import the necessary authentication libraries
-from google.colab import auth
-import gspread
-from google.auth import default
-
-# Authenticate the user. This will open a popup window.
-auth.authenticate_user()
-
-creds, _ = default()
-gc = gspread.authorize(creds)
-
-print("✅ Authentication successful!")
+# login/sync_hr_requests.py
 
 # --- Import Core Libraries ---
+# Note: The 'pip install' command has been removed. It belongs in the workflow file.
 import requests
 import sys
 import re
-import pytz
 import pandas as pd
 import numpy as np
+import gspread
 from gspread_dataframe import set_with_dataframe
-import gspread # Import gspread to access its exceptions
+from google.auth import default
+
+# --- AUTHENTICATION ---
+# This script assumes authentication is handled by the environment (e.g., GitHub Actions).
+try:
+    creds, _ = default(scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])
+    gc = gspread.authorize(creds)
+    print("✅ Service account authentication successful for HR Requests sync.")
+except Exception as e:
+    sys.exit(f"❌ ERROR: Google Authentication failed. Ensure credentials are set up correctly. Details: {e}")
 
 # — CONFIGURATION —
 API_KEY              = "8051c8104fd221694d9aeb305f7f4abb"
 TEMPLATE_ID          = 994672 # HR Requests Form ID
-TZ                   = pytz.timezone("Asia/Baghdad")
 
 # --- GOOGLE SHEETS CONFIGURATION ---
-# The ID of the Google Sheet file you want to write to.
 GOOGLE_SHEET_ID      = "1gYBXyTRT1J8uC9dz2t5pg4RHucapLS-_iLrDrWg17dY"
-# The name of the specific worksheet (tab) for the HR report.
-# If this sheet doesn't exist, it will be created automatically.
 HR_SHEET_NAME        = "HR Requests Report"
 
 # — MAPPING CONFIGURATION —
-# This mapping is kept as it is needed for the "Branch - الفرع" column.
 RAW_BRANCH_MAPPING_DATA = """
 2197299 "LBRUH   B07"
 2239240 FYJED  B32
@@ -125,11 +116,9 @@ def create_branch_map_prioritized(raw_data):
 BRANCH_MAP = create_branch_map_prioritized(RAW_BRANCH_MAPPING_DATA)
 
 def zenput_headers():
-    """Returns the authorization headers for Zenput API calls."""
     return {"X-API-TOKEN": API_KEY, "Content-Type": "application/json"}
 
 def fetch_all_submissions(template_id):
-    """Fetches all submissions for a given template ID using pagination."""
     print(f"ℹ️ Fetching all submissions for template ID: {template_id}...")
     all_submissions = []
     start, limit = 0, 100
@@ -151,7 +140,6 @@ def fetch_all_submissions(template_id):
     return all_submissions
 
 def process_hr_submissions_to_df(submissions):
-    """Processes raw submission JSON into a clean Pandas DataFrame for the HR Requests form."""
     rows = []
     ZENPUT_FIELD_MAPPING = {
         'branch': 'Branch - الفرع',
@@ -163,7 +151,6 @@ def process_hr_submissions_to_df(submissions):
         'request_status': 'Request Status - حالة الطلب',
         'comments': 'Comments - ملاحظات'
     }
-
     print("ℹ️ Processing HR submissions into a DataFrame...")
     for s in submissions:
         sm = s["smetadata"]
@@ -173,7 +160,6 @@ def process_hr_submissions_to_df(submissions):
         submitted_by_name = sm.get("created_by", {}).get("display_name", "")
         submission_id = s.get('id')
         pdf_url = f"https://www.zenput.com/submission/{submission_id}/pdf/" if submission_id else ""
-
         row = {
             "Branch - الفرع": branch_name,
             "Submitted By": submitted_by_name,
@@ -188,108 +174,67 @@ def process_hr_submissions_to_df(submissions):
             "pdf_link": pdf_url
         }
         rows.append(row)
-
-    if not rows:
-        return pd.DataFrame()
-
+    if not rows: return pd.DataFrame()
     df = pd.DataFrame(rows)
-
     def clean_value(value):
-        if isinstance(value, list):
-            return ', '.join(str(v).strip() for v in value if str(v).strip())
-        elif pd.isna(value):
-            return ""
+        if isinstance(value, list): return ', '.join(str(v).strip() for v in value if str(v).strip())
+        elif pd.isna(value): return ""
         return str(value).strip()
-
     for col in df.columns:
         df[col] = df[col].apply(clean_value)
-
     df['Date Submitted'] = pd.to_datetime(df['Date Submitted'], errors='coerce').dt.strftime('%Y-%m-%d')
     status_col = "Request Status - حالة الطلب"
     default_status = "Pending - قيد الانتظار"
     df[status_col] = df[status_col].replace('', np.nan).fillna(default_status)
-
-    print("ℹ️ Checking for and removing any blank rows...")
-    original_rows = len(df)
     critical_cols = ["Branch - الفرع", "Type of Request - نوع الطلب", "Write name of needs - اكتب الإحتياج", "Write the issue - اكتب المشكلة"]
+    df.dropna(subset=critical_cols, how='all', inplace=True)
     df = df.loc[~(df[critical_cols].replace(r'^\s*$', '', regex=True) == '').all(axis=1)].copy()
-    new_rows = len(df)
-    if original_rows > new_rows:
-        print(f"✅ Removed {original_rows - new_rows} blank row(s).")
-    else:
-        print("✅ No blank rows found.")
-
     print("✅ DataFrame processing complete.")
     return df
 
-# --- MODIFIED FUNCTION TO HANDLE SPECIFIC SHEET NAME ---
 def write_to_google_sheet(df, gc_client):
-    """
-    Writes data to a specific sheet by name in a Google Sheet file.
-    If the sheet doesn't exist, it creates it.
-    """
     print(f"ℹ️ Opening Google Sheet file by ID: {GOOGLE_SHEET_ID}")
     try:
         spreadsheet = gc_client.open_by_key(GOOGLE_SHEET_ID)
     except gspread.exceptions.SpreadsheetNotFound:
-        print(f"❌ ERROR: Spreadsheet not found. Make sure the ID '{GOOGLE_SHEET_ID}' is correct and you have shared the sheet with your service account email.")
+        print(f"❌ ERROR: Spreadsheet not found. Make sure the ID '{GOOGLE_SHEET_ID}' is correct and you have shared the sheet.")
         return
-    except Exception as e:
-        print(f"❌ An error occurred when opening the Google Sheet file: {e}")
-        return
-
-    # --- Find or create the target worksheet ---
     try:
         worksheet = spreadsheet.worksheet(HR_SHEET_NAME)
         print(f"ℹ️ Found existing sheet named '{HR_SHEET_NAME}'.")
     except gspread.exceptions.WorksheetNotFound:
         print(f"⚠️ Sheet '{HR_SHEET_NAME}' not found. Creating a new one...")
-        worksheet = spreadsheet.add_worksheet(title=HR_SHEET_NAME, rows=1, cols=1) # Create with minimal size
-        print(f"✅ Successfully created new sheet named '{HR_SHEET_NAME}'.")
-
-    # Prepare DataFrame for writing
+        worksheet = spreadsheet.add_worksheet(title=HR_SHEET_NAME, rows=1, cols=1)
     df_for_gsheet = df.fillna('')
     num_rows, num_cols = df_for_gsheet.shape
-
-    # --- STEP 1: CLEAR AND WRITE DATA ---
-    print("ℹ️ Step 1: Clearing old data from the sheet and writing new data...")
+    print(f"ℹ️ Clearing old data and writing {len(df_for_gsheet)} new rows...")
     worksheet.clear()
     set_with_dataframe(worksheet, df_for_gsheet, row=1, col=1, include_index=False, include_column_header=True)
-    print(f"✅ Wrote {len(df_for_gsheet)} new rows to the sheet '{HR_SHEET_NAME}'.")
-
-    # --- STEP 2: BATCH FORMATTING IN A SINGLE API CALL ---
-    print("ℹ️ Step 2: Preparing a single batch request for all formatting...")
-    requests_batch = [
-        {"clearBasicFilter": {"sheetId": worksheet.id}},
-        {"setBasicFilter": {"filter": {"range": {
-            "sheetId": worksheet.id, "startRowIndex": 0, "endRowIndex": num_rows + 1,
-            "startColumnIndex": 0, "endColumnIndex": num_cols
-        }}}},
-        {"autoResizeDimensions": {"dimensions": {
-            "sheetId": worksheet.id, "dimension": "COLUMNS", "startIndex": 0, "endIndex": num_cols
-        }}},
-        {"updateSheetProperties": {"properties": {
-            "sheetId": worksheet.id, "gridProperties": {"rowCount": num_rows + 1, "columnCount": num_cols}
-        }, "fields": "gridProperties(rowCount,columnCount)"}}
-    ]
-
-    print("ℹ️ Step 3: Applying all formatting (filter, resize, etc.) in one go...")
-    if requests_batch:
+    worksheet.resize(rows=max(num_rows + 1, 2), cols=num_cols if num_cols > 0 else 1)
+    if num_rows > 0:
+        requests_batch = [
+            {"clearBasicFilter": {"sheetId": worksheet.id}},
+            {"setBasicFilter": {"filter": {"range": {
+                "sheetId": worksheet.id, "startRowIndex": 0, "endRowIndex": num_rows + 1,
+                "startColumnIndex": 0, "endColumnIndex": num_cols
+            }}}},
+            {"autoResizeDimensions": {"dimensions": {
+                "sheetId": worksheet.id, "dimension": "COLUMNS", "startIndex": 0, "endIndex": num_cols
+            }}}
+        ]
         spreadsheet.batch_update({"requests": requests_batch})
-
     print(f"✅ Success! The sheet '{HR_SHEET_NAME}' has been updated and formatted.")
 
-
-# — Main Execution Flow —
-print("--- Starting HR Requests Form Sync ---")
-submissions = fetch_all_submissions(TEMPLATE_ID)
-
-if not submissions:
-    print("ℹ️ No submissions were found for this HR form.")
-else:
-    df_hr = process_hr_submissions_to_df(submissions)
-    if df_hr.empty:
-        print("ℹ️ DataFrame is empty after processing. No data will be written.")
+# --- Main Execution Flow ---
+if __name__ == "__main__":
+    print("\n--- Starting HR Requests Form Sync ---")
+    submissions = fetch_all_submissions(TEMPLATE_ID)
+    if not submissions:
+        print("ℹ️ No submissions were found for this HR form.")
     else:
-        write_to_google_sheet(df_hr, gc)
-print("--- Script Finished ---")
+        df_hr = process_hr_submissions_to_df(submissions)
+        if df_hr.empty:
+            print("ℹ️ DataFrame is empty after processing. No data will be written.")
+        else:
+            write_to_google_sheet(df_hr, gc)
+    print("--- Script Finished ---\n")
