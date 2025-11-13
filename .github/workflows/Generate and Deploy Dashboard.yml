@@ -16,6 +16,12 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
+    # ✨ CRITICAL CHANGE: Set the default working directory for all steps to 'login'.
+    # This solves the "file not found" error.
+    defaults:
+      run:
+        working-directory: ./login
+        
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -26,6 +32,7 @@ jobs:
         python-version: '3.10'
         
     - name: Install Python dependencies
+      # The working-directory default applies here too.
       run: |
         pip install pandas gspread gspread-dataframe google-auth-oauthlib requests pytz numpy openpyxl
         
@@ -44,15 +51,15 @@ jobs:
       run: python generate_dashboards.py
       
     - name: List generated files to confirm path
-      run: ls -la login/
+      run: ls -la
         
     - name: Commit and push generated dashboards
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # ✨ CRITICAL CHANGE: Add the files using their correct path inside the login folder.
-        git add login/hr_dashboard.html login/facilities_dashboard.html
+        # We add the files from the current working directory, which is now 'login'.
+        git add hr_dashboard.html facilities_dashboard.html
         
-        # Commit and push only if there are actual changes to the files.
+        # Commit and push only if there are actual changes.
         git diff --quiet && git diff --staged --quiet || (git commit -m "📊 Auto-update dashboards" && git push)
