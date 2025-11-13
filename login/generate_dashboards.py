@@ -1,4 +1,4 @@
-# generate_dashboards.py
+# login/generate_dashboards.py
 
 import pandas as pd
 from datetime import datetime, timedelta
@@ -35,28 +35,24 @@ SHEET_KEY = '1gYBXyTRT1J8uC9dz2t5pg4RHucapLS-_iLrDrWg17dY'
 MAIN_DATA_GID = 560668325
 ACCOMMODATION_TAB_NAME = 'HR Accommodation Data'
 FACILITIES_TYPES = ['Accommodations - سكن العمال', 'Containers - حاويات']
-# ✨ MODIFICATION: Define the output directory
-OUTPUT_DIR = "login"
-
+# ✨ MODIFICATION: No output directory needed, script runs in the target folder.
 # ==============================================================================
 
 def create_html(html_content, html_filename):
-    """Saves the HTML file into the specified output directory."""
-    # Ensure the output directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    
-    filepath = os.path.join(OUTPUT_DIR, html_filename)
-    with open(filepath, 'w', encoding='utf-8') as f:
+    """Saves the HTML file to the current directory."""
+    # The workflow's working-directory setting ensures this is the 'login' folder.
+    with open(html_filename, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"✅ HTML report '{filepath}' saved successfully.")
+    print(f"✅ HTML report '{html_filename}' saved successfully in current directory.")
 
-# The rest of your generate_report and run_all_reports functions remain largely the same.
-# The only change needed is in the generate_report function where it calls create_html.
+# ==============================================================================
+# The rest of your Python script (generate_report, run_all_reports, etc.)
+# remains exactly the same as in the previous answer.
+# I will include it here for completeness, but there are no further changes to it.
+# ==============================================================================
 
 def generate_report(report_type, all_data, all_status_columns, start_date_str, end_date_str):
     """Generates a single, complete HTML report for a specific department."""
-    # ... (All your KPI calculations and data processing logic from the previous answer goes here) ...
-    # ... (Omitted for brevity, it's correct as it was) ...
     print(f"\n{'='*60}\n--- Generating {report_type} Report for {start_date_str} to {end_date_str} ---\n{'='*60}")
     df = all_data['all_time']
     current_period_df = all_data['current']
@@ -85,8 +81,6 @@ def generate_report(report_type, all_data, all_status_columns, start_date_str, e
     else: # For HR
         kpis['department_performance_rate_current'] = request_complete_pct_current
         kpis['department_performance_rate_all_time'] = request_complete_pct_all_time
-
-    # ... (all data processing functions like generate_request_type_table_html, etc.) ...
     def generate_request_type_table_html(df, all_possible_statuses):
         if df.empty: return f'<tr><td colspan="{len(all_possible_statuses) + 2}">No requests in this period.</td></tr>'
         perf = df.groupby('type')['status'].value_counts().unstack(fill_value=0).reindex(columns=all_possible_statuses, fill_value=0)
@@ -161,14 +155,11 @@ def generate_report(report_type, all_data, all_status_columns, start_date_str, e
     <style>:root{{--primary-dark:#004D40;--primary-light:#00796B;--secondary:#4DB6AC;--background:#E0F2F1;--card-bg:#fff;--text-dark:#333;--text-light:#E0F2F1;--text-muted:#6c757d;--border-color:#B2DFDB;--color-green:#28a745;--color-red:#dc3545}}body{{font-family:'Cairo','Noto Naskh Arabic',sans-serif;direction:rtl;text-align:right;background-color:#E0F2F1!important;color:var(--text-dark);margin:0;print-color-adjust:exact;-webkit-print-color-adjust:exact}}.dashboard-container{{display:flex;width:100%;min-height:100vh}}.sidebar{{width:280px;background-color:var(--primary-dark);color:var(--text-light);padding:25px;display:flex;flex-direction:column;flex-shrink:0}}.main-content{{flex-grow:1;padding:30px;min-width:0}}.sidebar-header h1{{color:#fff;margin:0 0 5px;font-size:1.5rem}}.sidebar-header .logo{{font-size:1.8rem;margin-left:10px}}.sidebar h2{{font-size:1.1rem;margin:20px 0 15px;color:var(--text-light);border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:10px}}.kpi-grid-sidebar{{display:flex;flex-direction:column;gap:10px}}.kpi-card-sidebar{{background:var(--primary-light);padding:10px 15px;border-radius:8px;display:flex;align-items:center;gap:15px}}.kpi-card-sidebar .icon{{font-size:1.5rem;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background-color:rgba(0,0,0,.1)}}.kpi-card-sidebar .text .value{{font-size:1.8rem;font-weight:700;color:#fff}}.kpi-card-sidebar .text .label{{font-size:.85rem;opacity:.8}}.kpi-card-sidebar.previous{{background-color:#6a737b}}.main-header .title-area h1{{font-size:2.2rem;margin:0 0 5px;color:var(--primary-dark)}}.main-header .title-area p{{font-size:1.2rem;color:var(--text-muted);margin:0}}.card{{background-color:var(--card-bg);padding:25px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:25px}}.card h3{{margin:0 0 20px;font-size:1.4rem;color:var(--primary-dark);padding-bottom:10px;border-bottom:2px solid var(--border-color)}}.charts-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:25px}}.chart-container{{height:350px}}.chart-container-full{{height:400px}}table{{width:100%;border-collapse:collapse;table-layout:auto;word-break:break-word}}th,td{{padding:10px 8px;text-align:center;vertical-align:middle;border:1px solid #dee2e6}}th{{font-weight:600;background-color:#6c757d;color:#fff}}.detailed-table th,.detailed-table td{{border-bottom:1px solid var(--border-color);text-align:right;border-left:none;border-right:none}}.detailed-table th{{background-color:#f1f8f8;color:var(--text-dark)}}tbody tr:nth-child(even){{background-color:#f8f9fa}}tbody tr:hover{{background-color:#e8f5e9}}.highlight-critical{{background-color:#fff0f1!important;font-weight:700}}</style></head><body><div class="dashboard-container"><aside class="sidebar"><div class="sidebar-header"> <i class="{sidebar_icon} logo"></i> <h1>{sidebar_title}</h1> </div><h2>مؤشرات الفترة الحالية</h2><div class="kpi-grid-sidebar"><div class="kpi-card-sidebar"><div class="icon"><i class="fas fa-tachometer-alt"></i></div><div class="text"><p class="value">{kpis[department_performance_rate_current]:.1f}%</p><p class="label">معدل أداء الإدارة</p></div></div><div class="kpi-card-sidebar"><div class="icon"><i class="fas fa-list-ol"></i></div><div class="text"><p class="value">{kpis[current_total]}</p><p class="label">إجمالي الطلبات</p></div></div><div class="kpi-card-sidebar"><div class="icon"><i class="fas fa-check-circle"></i></div><div class="text"><p class="value">{kpis[current_completed]}</p><p class="label">مكتملة</p></div></div><div class="kpi-card-sidebar"><div class="icon"><i class="fas fa-hourglass-half"></i></div><div class="text"><p class="value">{kpis[current_incomplete]}</p><p class="label">غير مكتملة</p></div></div><div class="kpi-card-sidebar"><div class="icon"><i class="fas fa-triangle-exclamation"></i></div><div class="text"><p class="value">{kpis[current_critical_open]}</p><p class="label">حرجة ومفتوحة</p></div></div></div><h2>المؤشرات الإجمالية</h2><div class="kpi-grid-sidebar"><div class="kpi-card-sidebar previous"><div class="icon"><i class="fas fa-chart-line"></i></div><div class="text"><p class="value">{kpis[department_performance_rate_all_time]:.1f}%</p><p class="label">معدل الأداء الإجمالي</p></div></div><div class="kpi-card-sidebar previous"><div class="icon"><i class="fas fa-list-ol"></i></div><div class="text"><p class="value">{kpis[all_time_total]}</p><p class="label">إجمالي الطلبات</p></div></div></div></aside><main class="main-content"><header class="main-header"><div class="title-area"><h1>{main_title}</h1><p>للفترة من {start_date_str} إلى {end_date_str}</p></div></header>{department_specific_sections}<section class="card"><h3>التحليلات المرئية للطلبات (الفترة الحالية)</h3><div class="charts-grid"><div class="chart-container"><h3>حالة الطلبات</h3><canvas id="statusChart"></canvas></div><div class="chart-container"><h3>حسب الأولوية</h3><canvas id="priorityChart"></canvas></div><div class="chart-container"><h3>أكثر الفروع تقديماً للطلبات</h3><canvas id="branchChart"></canvas></div></div><div class="chart-container-full" style="margin-top: 25px;"><h3>الطلبات حسب النوع</h3><canvas id="typeChart"></canvas></div></section><section class="card"><h3>التحليلات المرئية للطلبات (لكل الأوقات)</h3><div class="charts-grid"><div class="chart-container"><h3>حالة الطلبات</h3><canvas id="allTimeStatusChart"></canvas></div><div class="chart-container"><h3>حسب الأولوية</h3><canvas id="allTimePriorityChart"></canvas></div><div class="chart-container"><h3>أكثر الفروع تقديماً للطلبات</h3><canvas id="allTimeBranchChart"></canvas></div></div><div class="chart-container-full" style="margin-top: 25px;"><h3>الطلبات حسب النوع</h3><canvas id="allTimeTypeChart"></canvas></div></section><section class="card"><h3>جدول الطلبات (الفترة الحالية)</h3><div><table class="detailed-table"><thead><tr><th>الفرع</th><th>مُقدم الطلب</th><th>بيانات الموظف</th><th>النوع</th><th>الإحتياج</th><th>المشكلة</th><th>الأولوية</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>{current_period_rows}</tbody></table></div></section><section class="card"><h3>الطلبات المعلقة من الفترات السابقة</h3><div><table class="detailed-table"><thead><tr><th>الفرع</th><th>مُقدم الطلب</th><th>بيانات الموظف</th><th>النوع</th><th>الإحتياج</th><th>المشكلة</th><th>الأولوية</th><th>الحالة</th><th>ملاحظات</th></tr></thead><tbody>{pending_from_before_rows}</tbody></table></div></section></main></div><script>document.addEventListener('DOMContentLoaded',function(){{Chart.register(ChartDataLabels);Chart.defaults.font.family="'Cairo', 'Noto Naskh Arabic', sans-serif";Chart.defaults.font.size=12;Chart.defaults.plugins.datalabels.font.weight='bold';Chart.defaults.maintainAspectRatio=!1;Chart.defaults.animation=!1;const e=(e,t)=>{{const a=t.chart.data.datasets[0].data;if(0===e)return"";if(a.length<=2){{const t=(a.reduce((e,t)=>e+t,0),e/a.reduce((e,t)=>e+t,0)*100);return`${{e}}\n(${{t.toFixed(0)}}%)`}}const r=[...a].sort((e,t)=>t-a);if(e>=r[1]){{const t=(a.reduce((e,t)=>e+t,0),e/a.reduce((e,t)=>e+t,0)*100);return`${{e}}\n(${{t.toFixed(0)}}%)`}}return""}},t=(e,t)=>{{if(0===e)return"";const a=t.chart.data.datasets.reduce((e,a)=>e+(a.data[t.dataIndex]||0),0),r=e/a*100;return`${{e}}\n(${{r.toFixed(0)}}%)`}};const a={{plugins:{{legend:{{position:"right"}},datalabels:{{anchor:"end",align:"end",offset:8,clamp:!0,color:"black",font:{{size:11,weight:"600"}},formatter:e}}}},layout:{{padding:{{top:30,bottom:30,left:30,right:40}}}}}},r={{indexAxis:"y",plugins:{{legend:{{display:!1}},datalabels:{{anchor:"end",align:"end",offset:4,color:"black",font:{{weight:"600"}},formatter:e=>e}}}},scales:{{x:{{beginAtZero:!0,grace:"10%"}}}},layout:{{padding:{{right:30}}}}}},o={{scales:{{x:{{stacked:!0,ticks:{{maxRotation:65,minRotation:45,autoSkip:!1}}}},y:{{stacked:!0,beginAtZero:!0}}}},plugins:{{legend:{{position:"top"}},tooltip:{{mode:"index"}},datalabels:{{anchor:"center",align:"center",color:"black",font:{{size:10}},formatter:t}}}}}};new Chart(document.getElementById('typeChart'),{{type:"bar",data:JSON.parse(`{current_chart_data[type_chart]}`),options:o}});new Chart(document.getElementById('statusChart'),{{type:"doughnut",data:JSON.parse(`{current_chart_data[status_chart]}`),options:a}});new Chart(document.getElementById('priorityChart'),{{type:"pie",data:JSON.parse(`{current_chart_data[priority_chart]}`),options:a}});new Chart(document.getElementById('branchChart'),{{type:"bar",data:JSON.parse(`{current_chart_data[branch_chart]}`),options:r}});new Chart(document.getElementById('allTimeTypeChart'),{{type:"bar",data:JSON.parse(`{all_time_chart_data[type_chart]}`),options:o}});new Chart(document.getElementById('allTimeStatusChart'),{{type:"doughnut",data:JSON.parse(`{all_time_chart_data[status_chart]}`),options:a}});new Chart(document.getElementById('allTimePriorityChart'),{{type:"pie",data:JSON.parse(`{all_time_chart_data[priority_chart]}`),options:a}});new Chart(document.getElementById('allTimeBranchChart'),{{type:"bar",data:JSON.parse(`{all_time_chart_data[branch_chart]}`),options:r}})}});</script></body></html>
     """
     final_html = base_html.format(**render_context)
-
     html_filename = "hr_dashboard.html" if report_type == "HR" else "facilities_dashboard.html"
     create_html(final_html, html_filename)
     return html_filename
 
 def run_all_reports(sheet_key, main_gid, accommodation_tab_name, start_date_str, end_date_str):
-    """Main orchestrator: Fetches data, splits it, and generates a report for each."""
-    # ... (Data fetching logic is correct and remains here) ...
     try:
         print("Authenticating with Google and fetching data...")
         spreadsheet = gc.open_by_key(sheet_key)
