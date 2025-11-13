@@ -38,7 +38,19 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <h1 id="dashboard-title">لوحة الموارد البشرية</h1>
+                <div class="header-left">
+                    <h1 id="dashboard-title">لوحة الموارد البشرية</h1>
+                    <div class="date-filter">
+                        <label>من:</label>
+                        <input type="date" id="start-date" value="">
+                        <label>إلى:</label>
+                        <input type="date" id="end-date" value="">
+                        <button class="btn-apply" onclick="applyDateFilter()">
+                            <i class="fas fa-filter"></i>
+                            تطبيق
+                        </button>
+                    </div>
+                </div>
                 <div class="header-actions">
                     <button class="btn-download" onclick="downloadDashboard()">
                         <i class="fas fa-download"></i>
@@ -58,9 +70,6 @@
                 </div>
 
                 <div id="dashboard-content" class="dashboard-content" style="display: none;">
-                    <div id="iframe-container" class="iframe-container">
-                        <iframe id="dashboard-iframe" frameborder="0"></iframe>
-                    </div>
                 </div>
             </div>
         </main>
