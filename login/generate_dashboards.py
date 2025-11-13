@@ -6,22 +6,20 @@ import json
 import gspread
 from google.auth import default
 import os
+import sys
 
 # --- SETUP AND AUTHENTICATION ---
-print("--- Installing libraries for report generation ---")
-!pip install gspread pandas google-auth-oauthlib --quiet
-print("✅ Libraries installed.")
+# Note: The '!pip install' command has been removed. It is not valid Python.
+# Installation is handled by the requirements in the workflow file.
+print("--- Starting dashboard generation script ---")
 
 try:
-    from google.colab import auth
-    auth.authenticate_user()
-    creds, _ = default()
-    gc = gspread.authorize(creds)
-    print("✅ Colab authentication successful.")
-except (ImportError, FileNotFoundError):
+    # This will work in the GitHub Actions environment
     creds, _ = default(scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])
     gc = gspread.authorize(creds)
-    print("✅ Service account authentication successful.")
+    print("✅ Service account authentication successful for dashboard generation.")
+except Exception as e:
+    sys.exit(f"❌ ERROR: Google Authentication failed. Ensure credentials are set up correctly. Details: {e}")
 
 # --- DYNAMIC DATE CONFIGURATION ---
 end_date_dt = datetime.now()
@@ -35,7 +33,6 @@ SHEET_KEY = '1gYBXyTRT1J8uC9dz2t5pg4RHucapLS-_iLrDrWg17dY'
 MAIN_DATA_GID = 560668325
 ACCOMMODATION_TAB_NAME = 'HR Accommodation Data'
 FACILITIES_TYPES = ['Accommodations - سكن العمال', 'Containers - حاويات']
-# ✨ MODIFICATION: No output directory needed, script runs in the target folder.
 # ==============================================================================
 
 def create_html(html_content, html_filename):
@@ -46,9 +43,8 @@ def create_html(html_content, html_filename):
     print(f"✅ HTML report '{html_filename}' saved successfully in current directory.")
 
 # ==============================================================================
-# The rest of your Python script (generate_report, run_all_reports, etc.)
-# remains exactly the same as in the previous answer.
-# I will include it here for completeness, but there are no further changes to it.
+# The rest of the script is correct and remains the same.
+# Included here for completeness.
 # ==============================================================================
 
 def generate_report(report_type, all_data, all_status_columns, start_date_str, end_date_str):
@@ -198,4 +194,5 @@ def run_all_reports(sheet_key, main_gid, accommodation_tab_name, start_date_str,
     generate_report('Facilities', facilities_data, all_status_columns, start_date_str, end_date_str)
 
 # --- Execute the entire process ---
-run_all_reports(SHEET_KEY, MAIN_DATA_GID, ACCOMMODATION_TAB_NAME, start_date, end_date)
+if __name__ == "__main__":
+    run_all_reports(SHEET_KEY, MAIN_DATA_GID, ACCOMMODATION_TAB_NAME, start_date, end_date)
