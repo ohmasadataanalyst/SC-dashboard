@@ -27,14 +27,11 @@ jobs:
         
     - name: Install system dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y fonts-liberation fonts-noto \
-          libasound2t64 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 \
-          libcairo2 libcups2 libdbus-1-3 libdrm2 libgbm1 libgtk-3-0 \
-          libnspr4 libnss3 libpango-1.0-0 libx11-6 libx11-xcb1 libxcb1 \
-          libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 \
-          libxi6 libxrandr2 libxrender1 libxss1 libxtst6 \
-          chromium-browser
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq --no-install-recommends \
+          fonts-liberation fonts-noto \
+          chromium-browser chromium-chromedriver \
+          libnss3 libxss1 libappindicator3-1 libasound2t64
         
     - name: Install Python dependencies
       run: |
@@ -44,8 +41,8 @@ jobs:
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       run: |
-        # FIX: Write the file directly into the 'login' directory
         echo "$GOOGLE_CREDENTIALS" > login/credentials.json
+        ls -la login/credentials.json
         
     - name: Run dashboard generation script
       env:
