@@ -7,6 +7,23 @@ let loadedDashboards = {
 
 let currentDashboard = 'hr';
 
+/**
+ * ✨ NEW, ROBUST FUNCTION
+ * Dynamically determines the correct base path for the site.
+ * This is crucial for GitHub Pages project sites (e.g., user.github.io/repo-name/).
+ * It ensures that no matter how the site is accessed, the path to our assets is correct.
+ */
+function getBasePath() {
+    const path = window.location.pathname;
+    // If path is '/repo-name/' or '/repo-name/index.html', etc., we extract '/repo-name'
+    const repoName = path.split('/')[1];
+    if (repoName && window.location.hostname.includes('github.io')) {
+        return `/${repoName}`;
+    }
+    // For local development or a root domain, the base path is empty.
+    return '';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     loadAndDisplayInitialDashboard();
 
@@ -25,29 +42,40 @@ function loadAndDisplayInitialDashboard() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('dashboard-content').style.display = 'none';
 
-    // ✨ CRITICAL CHANGE: The fetch paths now correctly point to the /login/ directory.
-    const hrDashboardUrl = 'login/hr_dashboard.html?cache_bust=' + new Date().getTime();
-    const facilitiesDashboardUrl = 'login/facilities_dashboard.html?cache_bust=' + new Date().getTime();
+    // ✨ CRITICAL CHANGE: Build the full, correct URL using the base path.
+    const basePath = getBasePath();
+    const hrDashboardUrl = `${basePath}/login/hr_dashboard.html?cache_bust=${new Date().getTime()}`;
+    const facilitiesDashboardUrl = `${basePath}/login/facilities_dashboard.html?cache_bust=${new Date().getTime()}`;
+
+    console.log("Attempting to fetch HR dashboard from:", hrDashboardUrl);
+    console.log("Attempting to fetch Facilities dashboard from:", facilitiesDashboardUrl);
 
     Promise.all([
-        fetch(hrDashboardUrl).then(res => res.ok ? res.text() : null),
-        fetch(facilitiesDashboardUrl).then(res => res.ok ? res.text() : null)
+        fetch(hrDashboardUrl).then(res => {
+            if (!res.ok) {
+                console.error(`Failed to fetch ${hrDashboardUrl}. Status: ${res.status} ${res.statusText}`);
+                return null;
+            }
+            return res.text();
+        }),
+        fetch(facilitiesDashboardUrl).then(res => {
+            if (!res.ok) {
+                console.error(`Failed to fetch ${facilitiesDashboardUrl}. Status: ${res.status} ${res.statusText}`);
+                return null;
+            }
+            return res.text();
+        })
     ]).then(([hrHtml, facilitiesHtml]) => {
         if (hrHtml) {
             loadedDashboards.hr = hrHtml;
-            console.log('✅ HR Dashboard loaded from /login/');
-        } else {
-             console.error('❌ Failed to load HR Dashboard. Check if the file exists at: ' + hrDashboardUrl);
+            console.log('✅ HR Dashboard loaded successfully.');
         }
         if (facilitiesHtml) {
             loadedDashboards.facilities = facilitiesHtml;
-            console.log('✅ Facilities Dashboard loaded from /login/');
-        } else {
-            console.error('❌ Failed to load Facilities Dashboard. Check if the file exists at: ' + facilitiesDashboardUrl);
+            console.log('✅ Facilities Dashboard loaded successfully.');
         }
         
         document.getElementById('loading').style.display = 'none';
-        // Ensure the iframe container exists before trying to display the dashboard
         if (!document.getElementById('iframe-container')) {
             document.getElementById('dashboard-content').innerHTML = '<div id="iframe-container" style="height: 100%;"><iframe id="dashboard-iframe" frameborder="0" style="width: 100%; height: 100%;"></iframe></div>';
         }
@@ -56,10 +84,10 @@ function loadAndDisplayInitialDashboard() {
         displayDashboard(currentDashboard);
 
     }).catch(error => {
-        console.error('Error loading initial dashboards:', error);
+        console.error('CRITICAL ERROR during fetch operation:', error);
         document.getElementById('loading').style.display = 'none';
         document.getElementById('dashboard-content').style.display = 'block';
-        showNoDataMessage("فشل تحميل التقارير الأولية. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+        showNoDataMessage("حدث خطأ في الشبكة أثناء محاولة تحميل التقارير.");
     });
 }
 
@@ -76,13 +104,12 @@ function displayDashboard(type) {
 
     if (iframe && dashboardHtml) {
         iframe.srcdoc = dashboardHtml;
-        // Parse the HTML to find and set the dates in the filter fields
         updateDateFieldsFromHtml(dashboardHtml);
     } else {
         if (iframe) iframe.srcdoc = ''; // Clear iframe content
         const reportName = type === 'hr' ? 'الموارد البشرية' : 'إدارة المرافق';
+        // This is the message you are seeing
         showNoDataMessage(`لم يتم العثور على تقرير ${reportName}. قد يكون قيد الإنشاء أو حدث خطأ.`);
-        // Clear date fields if no dashboard is loaded
         document.getElementById('start-date').value = '';
         document.getElementById('end-date').value = '';
     }
@@ -101,7 +128,6 @@ function updateDateFieldsFromHtml(htmlString) {
     }
 }
 
-// This function now explains its purpose and calls refreshDashboard
 function applyDateFilter() {
     alert("لا يمكن تغيير نطاق التواريخ يدوياً. يتم تحديث هذا التقرير تلقائياً. سيتم الآن جلب أحدث تقرير متاح.");
     refreshDashboard();
@@ -109,14 +135,14 @@ function applyDateFilter() {
 
 function refreshDashboard() {
     alert('جاري تحديث التقارير لأحدث نسخة متاحة...');
-    loadAndDisplayInitialDashboard(); // Re-run the initial load function
+    loadAndDisplayInitialDashboard();
 }
 
 function showNoDataMessage(message) {
     const container = document.getElementById('dashboard-content');
-    container.innerHTML = `<div class="no-data" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                             <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #FF8C00; margin-bottom: 1rem;"></i>
-                             <p>${message}</p>
+    container.innerHTML = `<div class="no-data" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
+                             <div style="font-size: 3rem; color: #FF8C00; margin-bottom: 1rem; background-color: #ffe8cc; width: 80px; height: 80px; border-radius: 50%; display: grid; place-items: center;">!</div>
+                             <p style="font-size: 1.2rem; font-weight: 600;">${message}</p>
                            </div>`;
 }
 
@@ -138,7 +164,6 @@ function downloadDashboard() {
 
 function logout() {
     if (confirm('هل تريد تسجيل الخروج؟')) {
-        // Assuming index.html is at the root
         window.location.href = 'index.html';
     }
 }
